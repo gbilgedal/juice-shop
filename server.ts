@@ -541,7 +541,7 @@ restoreOverwrittenFilesWithOriginals().then(() => {
       return context.continue
     })
   }
-//test
+  // test
   /* Custom Restful API */
   app.post('/rest/user/login', login())
   app.get('/rest/user/change-password', changePassword())
