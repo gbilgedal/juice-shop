@@ -1,27 +1,17 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-# This workflow checks out code, builds an image, performs a container image
-# scan with Anchore's Syft tool, and uploads the results to the GitHub Dependency
-# submission API.
-
-# For more information on the Anchore sbom-action usage
-# and parameters, see https://github.com/anchore/sbom-action. For more
-# information about the Anchore SBOM tool, Syft, see
-# https://github.com/anchore/syft
-name: Anchore Syft SBOM scan
+name: build
 
 on:
   push:
     branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: write, read
 
 jobs:
-  Anchore-Build-Scan:
+  syft:
     permissions:
       contents: write # required to upload to the Dependency submission API
     runs-on: ubuntu-latest
@@ -35,32 +25,9 @@ jobs:
       with:
         image: "localbuild/testimage:latest"
         artifact-name: image.spdx.json
-        dependency-snapshot: true
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
+        dependency-snapshot: true 
 
-# This workflow checks out code, builds an image, performs a container image
-# vulnerability scan with Anchore's Grype tool, and integrates the results with GitHub Advanced Security
-# code scanning feature.  For more information on the Anchore scan action usage
-# and parameters, see https://github.com/anchore/scan-action. For more
-# information on Anchore's container image scanning tool Grype, see
-# https://github.com/anchore/grype
-name: Anchore Grype vulnerability scan
-
-on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [ "master" ] 
-
-permissions:
-  contents: read
-
-jobs:
-  Anchore-Build-Scan:
+  grype:
     permissions:
       contents: read # for actions/checkout to fetch code
       security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
@@ -82,29 +49,9 @@ jobs:
       uses: github/codeql-action/upload-sarif@v2
       with:
         sarif_file: ${{ steps.scan.outputs.sarif }}
-# For most projects, this workflow file will not need changing; you simply need
-# to commit it to your repository.
-#
-# You may wish to alter this file to override the set of languages analyzed,
-# or to provide custom queries or build logic.
-#
-# ******** NOTE ********
-# We have attempted to detect the languages in your repository. Please check
-# the `language` matrix defined below to confirm you have the correct set of
-# supported CodeQL languages.
-#
-name: "CodeQL"
-
-on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [ "master" ] 
-
-jobs:
-  analyze:
-    name: Analyze
+ 
+  codeql:
+    name: codeql
     # Runner size impacts CodeQL analysis time. To learn more, please see:
     #   - https://gh.io/recommended-hardware-resources-for-running-codeql
     #   - https://gh.io/supported-runners-and-hardware-resources
@@ -162,13 +109,8 @@ jobs:
       uses: github/codeql-action/analyze@v2
       with:
         category: "/language:${{matrix.language}}"
-name: gitleaks
-on:
-  pull_request:
-  push:
-  workflow_dispatch: 
-jobs:
-  scan:
+ 
+  gitleaks:
     name: gitleaks
     runs-on: ubuntu-latest
     steps:
@@ -177,30 +119,8 @@ jobs:
           fetch-depth: 0
       - uses: gitleaks/gitleaks-action@v2
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-# This workflow file requires a free account on Semgrep.dev to
-# manage rules, file ignores, notifications, and more.
-#
-# See https://semgrep.dev/docs
-
-name: Semgrep
-
-on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [ "master" ] 
-
-permissions:
-  contents: read
-
-jobs:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+ 
   semgrep:
     permissions:
       contents: read # for actions/checkout to fetch code
@@ -225,25 +145,8 @@ jobs:
         with:
           sarif_file: semgrep.sarif
         if: always()
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: trivy
-
-on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [ "master" ] 
-
-permissions:
-  contents: read
-
-jobs:
-  build:
+ 
+  trivy:
     permissions:
       contents: read # for actions/checkout to fetch code
       security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
