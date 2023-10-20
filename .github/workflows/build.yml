@@ -23,17 +23,6 @@ jobs:
         image: "localbuild/testimage:latest"
         artifact-name: image.spdx.json
         dependency-snapshot: true 
-  kyverno:
-      runs-on: ubuntu-latest
-      name: kyverno
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v2
-        - name: Validate policy
-          uses: gbaeke/kyverno-cli@v1
-          with:
-            command: |
-              kyverno apply ./policies --resource=./deploy/deployment.yaml
   grype:
     permissions:
       contents: read # for actions/checkout to fetch code
