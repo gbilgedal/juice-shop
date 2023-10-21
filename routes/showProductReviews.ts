@@ -32,7 +32,7 @@ module.exports = function productReviews() {
     // Measure how long the query takes, to check if there was a NoSQL DoS attack
     const t0 = new Date().getTime();
 
-    // Use a parameterized query to avoid NoSQL injection
+    // Used a parameterized query to avoid NoSQL injection
     db.reviews.find({ product: id }).then((reviews: Review[]) => {
       const t1 = new Date().getTime();
       challengeUtils.solveIf(challenges.noSqlCommandChallenge, () => (t1 - t0) > 2000);
