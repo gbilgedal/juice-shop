@@ -143,12 +143,12 @@ export class SearchResultComponent implements OnDestroy, AfterViewInit {
   filterTable () {
     let queryParam: string = this.route.snapshot.queryParams.q
     if (queryParam) {
-      tempQueryParam = this.sanitizer.bypassSecurityTrustHtml(queryParam.trim())
+      let tempQueryParam = this.sanitizer.bypassSecurityTrustHtml(queryParam.trim())
       this.ngZone.runOutsideAngular(() => { // vuln-code-snippet hide-start
         this.io.socket().emit('verifyLocalXssChallenge', queryParam)
       }) // vuln-code-snippet hide-end
-      this.dataSource.filter = tempQueryParam.toLowerCase()
-      this.searchValue = this.sanitizer.bypassSecurityTrustHtml(tempQueryParam) // vuln-code-snippet vuln-line localXssChallenge xssBonusChallenge
+      this.dataSource.filter = tempQueryParam.toString().toLowerCase()
+      this.searchValue = tempQueryParam// vuln-code-snippet vuln-line localXssChallenge xssBonusChallenge
       this.gridDataSource.subscribe((result: any) => {
         if (result.length === 0) {
           this.emptyState = true
